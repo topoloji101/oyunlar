@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topoloji - Matematiğin Derinliklerinde Topolojinin Gizemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Header ve Navigation */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        .nav-menu li a:hover,
+        .nav-menu li a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 0.8s;
+        }
+        .hero b1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInDown 0.8s;
+        }
+
+        .hero p {
+            font-size: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.95;
+            animation: fadeInUp 0.8s;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* Section */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 24px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .section p {
+            margin-bottom: 20px;
+            text-align: justify;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .section ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .section li {
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+
+        /* Image containers */
+        .image-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .image-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .game-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-card h3 {
+            color: #667eea;
+            font-size: 24px;
+            margin: 0 0 15px 0;
+            text-align: center;
+        }
+
+        .game-card p {
+            color: #555;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .topic-tag {
+            background: #f0f0f0;
+            color: #667eea;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .play-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .nav-menu {
+                gap: 15px;
+            }
+
+            .section h2 {
+                font-size: 28px;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-header">
+                <div class="logo">🔷 Topoloji</div>
+                <ul class="nav-menu">
+                    <li><a href="#" class="nav-link active" data-section="anasayfa">Ana Sayfa</a></li>
+                    <li><a href="#" class="nav-link" data-section="uygulama">Uygulama Alanları</a></li>
+                    <li><a href="#" class="nav-link" data-section="matematik">Matematik ve Topoloji</a></li>
+                    <li><a href="#" class="nav-link" data-section="problemler">Problemler</a></li>
+                    <li><a href="#" class="nav-link" data-section="oyunlar">Oyunlar</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Ana Sayfa Section -->
+    <section id="anasayfa" class="section active">
+        <div class="hero">
+            <b1>"Matematik, farklı şeylere aynı ismi verme sanatıdır." H. Poincare </b1>
+            <p>Şekillerin esnek özelliklerini inceleyen büyüleyici matematik dalını keşfedin</p>
+        </div>
+
+        <div class="container">
+            <h2>Topoloji Nedir, Ne İşe Yarar?</h2>
+            
+            <p>
+                Topoloji sözcüğü Yunancada yer, yüzey veya uzay anlamına gelen <strong>topos</strong> ve 
+                bilim anlamına gelen <strong>logos</strong> sözcüklerinden türetilmiştir. Bu kelime ilk 
+                olarak 1847'de Johann Listing tarafından kullanılmıştır.
+            </p>
+
+            <p>
+                Topoloji, matematiğin diğer çalışma alanlarına göre nispeten yeni bir dalıdır. 2000 yıl 
+                süre Euclid geometrisi hakim olsa da 18. ve 19. yüzyılların başlarında, bazı matematikçiler, 
+                şekillerin küresel özelliklerini göz önünde bulundurarak geometrik nesnelere farklı bakmaya 
+                başladılar. 1900'lerin başlarında ise soyut cebirsel yapıları işin içine dahil etmek için 
+                "şekil" kavramından uzaklaşan topoloji kavramı ortaya çıktı.
+            </p>
+
+            <div class="highlight-box">
+                <h3>Topoloji Nasıl Tanımlanır?</h3>
+                <p>
+                    <strong>Topoloji, kesmeden, delmeden veya birbirine yapışmadan sürekli gerdirme veya 
+                    bükme yoluyla şekillerin birbirine dönüşümleri ile ilgilenir.</strong> Hatta bu yüzden 
+                    topolojiye bazen <em>"lastik levha geometrisi"</em> de denir.<br>
+                    <img src="webresim/1.png" alt=""  style="width:405px;height: 108px;">
+                </p>
+            </div>
+
+            <p>
+                Topoloji her ne kadar matematiğin ana dallarından biri olsa da günlük hayatta birçok alanda 
+                kullanılmaktadır. Örneğin, topoloji matematiksel modelleme ve veri analizi için kullanılır. 
+                Ayrıca, topoloji mühendislikte ve bilgisayar bilimlerinde de örneğin, bir nesnenin şeklini 
+                veya yüzeyini analiz etmek için kullanılabilir. Topoloji ayrıca uzay araştırmalarında, 
+                uzayda nesnelerin şekillerini ve yüzeylerini analiz etmek için kullanılabilir.
+            </p>
+
+            <h3>Topolojik Eşdeğerlik</h3>
+            
+            <p>
+                Topoloji, herhangi bir sürekli deformasyon altında değişmez olan uzayların özelliklerini 
+                inceler. Bazen "lastik levha geometrisi" olarak da adlandırılmasının nedeni nesnelerin 
+                lastik gibi gerilebilir ve büzülebilir, ancak kırılamaz olmasıdır. Örneğin, bir kare 
+                kırılmadan daire şeklinde deforme olabilir, ancak 8 rakamı olamaz. Dolayısıyla bir kare, 
+                topolojik olarak bir daireye eşdeğerdir, ancak bir şekil 8'den farklıdır.
+            </p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4>🔄 Deformasyon</h4>
+                    <p>Topoloji, nesnelerin deformasyonları, bükülmeleri ve gerilmeleri yoluyla korunan 
+                    özelliklerin matematiksel çalışmasıdır ve yırtılmaya izin verilmez.</p>
+                </div>
+                <div class="info-card">
+                    <h4>⭕ Topolojik Özellikler</h4>
+                    <p>Deformasyonlar sonucu korunan özelliklere topolojik özellikler denir. Bir daire 
+                    topolojik olarak bir elipse eşdeğer iken bir küre bir elipsoide eşdeğerdir.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🔗 Dönüşümler</h4>
+                    <p>Topolojik dönüşümler ile bir şeklin noktalarına başka bir şeklin noktaları tekabül 
+                    ettirilir; fakat metrik özelliklerin değil, metrik olmayan özelliklerin korunması önemlidir.</p>
+                </div>
+            </div>
+
+            <p>
+                Böylece şekiller değişmeye uğrarlar, fakat topolojik özellikleri korunur. Örneğin, bir 
+                karenin bir çember üzerine resmedilmesi veya tersine bir çemberin bir kare üzerine 
+                resmedilmesi birer topolojik dönüşümdür. Burada dönüşüm birebirdir ve uzunlukları korumaz. 
+                Şekil deforme olmakla birlikte şekiller üzerindeki noktalara ait sıralama ve basit kapalı 
+                bir eğri olma özelliği korunmaktadır.
+            </p>
+
+            <div class="highlight-box">
+                <p>
+                    <strong>Önemli Not:</strong> Bütün topolojik dönüşümlerde basit kapalı şekiller yine 
+                    kapalı şekil olarak kalırlar. Topoloji, nesnelerin ayrıntılı formlarını göz ardı ederken, 
+                    nesnelerin doğal bağlantılarını soyutlamak için kullanılabilir.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Uygulama Alanları Section -->
+    <section id="uygulama" class="section">
+        <div class="container">
+            <h2>Topolojinin Matematik Alanı Dışındaki Uygulama Alanları</h2>
+            
+            <p>
+                Topoloji günlük hayatta birçok alanda kullanılmaktadır. Örneğin, topoloji matematiksel 
+                modelleme ve veri analizi için, mühendislikte ve bilgisayar bilimlerinde, uzay 
+                araştırmalarında bir nesnenin şeklini veya yüzeyini analiz etmek için, coğrafi bilgi 
+                sisteminde, haritalamada, ağ sistemlerinde, fizik alanında, moleküler biyoloji ve genetik 
+                alanında uygulama alanlarına sahiptir.
+            </p>
+
+            <div class="highlight-box">
+                <p>
+                    Günlük yaşamımızda genellikle topolojinin işe yaramayacağını düşünürüz, oysaki bizi 
+                    şifreleyen DNA'mızda, bizim kim olduğumuzu ele veren parmak izimizde, avuç içimizde 
+                    kısacası <strong>insan vücudunda bile topolojinin izleri vardır</strong>.
+                </p>
+            </div>
+
+            <h3>🗺️ Harita ve Navigasyon Uygulamaları</h3>
+            
+            <p>
+                Topolojinin sağladığı kolaylıklardan biri, karmaşık haritaların basitleştirilmesidir. 
+                Örneğin, metrolarda durakları gösteren haritalar tamamen topolojik bir yaklaşımla çizilmiştir. 
+                Çünkü söz konusu olan sadece durakların sıralanışıdır ve şemanın bu haliyle yolculara 
+                verdiği bilgi hangi duraktan sonra hangisinin geldiğidir.
+            </p>
+
+            <p>
+                Metro haritalarında topoloji mantığıyla hazırlanmış gösterimde, duraklar arası mesafe, 
+                birbirlerine göre doğrultuları, yönleri yani metrik bilgilerin tamamı ihmal edilmiş ve 
+                metronun yol haritası topolojik bir dönüşüm geçirerek çok daha anlaşılır hale getirilmiştir.
+            </p>
+
+            <div class="highlight-box">
+                <p>
+                    <strong>Önemli:</strong> Topoloji metrik özellikler olan uzaklık ve büyüklük ile 
+                    ilgilenmez. Ancak topolojide <strong>komşuluklar ve sınırlar önemlidir</strong>.
+                </p>
+            </div>
+
+            <h3>🧬 Moleküler Biyoloji ve Genetik</h3>
+            
+            <p>
+                Moleküler biyoloji ve genetik alanında, belirli enzimler tarafından DNA çevresinde 
+                oluşturulan düğümlerin çözülmesine yardımcı olmak gibi çeşitli uygulamaları vardır. 
+                Doğa ile bilimin yasalarının birebir örtüştüğünün çarpıcı bir kanıtı da DNA'nın yapısının 
+                geometri ve topoloji ile olan ilişkisidir.
+            </p>
+
+            <p>
+                DNA moleküllerinin bağlanma, kıvrılma, bükülme sayıları ile yüzey bağlanma ve döngü 
+                sayılarının sürekli deformasyonlar altında diferansiyel topolojik değişmezlerdir.
+            </p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4>🔗 Bağlanma Sayısı</h4>
+                    <p>Çift sarmallı DNA molekülünde bulunan şeritleri birbirine bağlayan sayı - birinci 
+                    topolojik özellik.</p>
+                </div>
+                <div class="info-card">
+                    <h4>⭕ İç İçe Halkalar</h4>
+                    <p>Farklı DNA halkalarının birbiri içine geçtiği yapılar - ikinci topolojik özellik.</p>
+                </div>
+                <div class="info-card">
+                    <h4>🪢 Düğümler</h4>
+                    <p>Farklı DNA halkalarının oluşturduğu düğümler - üçüncü topolojik özellik.</p>
+                </div>
+            </div>
+
+            <h3>⚛️ Fizik Alanında Topoloji</h3>
+            
+            <p>
+                Fizik alanında topoloji, fiziksel sistemlerin özelliklerini incelemek için kullanılır. 
+                Kuantum alan teorisinde, yoğun madde fiziğinde ve sicim teorisinde kullanılırlar. Sicim 
+                teorisini tanımlamak veya gözlemlenen verilere uyan evrenin şeklinin modellerini oluşturmak 
+                için fizikte ayrı bir öneme sahiptir.
+            </p>
+
+            <h3>📊 Topolojik Veri Analizi</h3>
+            
+            <p>
+                Topoloji Veri Analizinde veri kümelerinin şeklini ve yapısını incelemek için kullanılır. 
+                Topolojik veri analizi, karmaşık veri kümelerini analiz etmek için topolojik yöntemleri 
+                uygulayan bir alandır.
+            </p>
+
+            <h3>🌐 Bilgisayar Ağ Sistemleri</h3>
+            
+            <p>
+                Topoloji, bilgisayar ağ sistemlerinin tasarlanmasında da kritik önem taşır. İş 
+                istasyonlarının, anahtarların ve sunucuların düzeni, ağın fiziksel topolojisini oluşturur. 
+                Bu veri iletme kapasitesini ve hızını büyük ölçüde etkiler.
+            </p>
+
+            <h3>🗺️ Coğrafi Bilgi Sistemi (CBS)</h3>
+            
+            <p>
+                CBS yazılımlarının tabanında topolojik yaklaşım yatmaktadır. CBS yazılımı, coğrafi veriyi 
+                gerektiği gibi analiz edebilmek için topolojik ilişkileri içermeye mecburdur. CBS 
+                yazılımını herhangi bir bilgisayar destekli harita yazılımından ayıran en temel özellik 
+                de budur.
+            </p>
+
+            <p>
+                Her ne kadar matematiğin bir dalı olarak topoloji, varlıkların metrik özelliklerinden çok 
+                birbirleriyle olan ilişkileri ile ilgilense de CBS'de topoloji; coğrafi varlıkların 
+                birbirleriyle nasıl ve ne şekilde ilişkilendirildiğini geometriden bağımsız şekilde gösterme 
+                biçimi olarak tanımlanır.
+            </p>
+
+            
+        </div>
+    </section>
+
+    <!-- Matematik ve Topoloji Section -->
+    <section id="matematik" class="section">
+        <div class="container">
+            <h2>Matematik Alanında Topoloji</h2>
+            
+            <h3>Topolojinin Tarihçesi ve Gelişimi</h3>
+            
+            <p>
+                Özellikle 19. yüzyılın sonlarına doğru Henri Poincaré'nin çalışmalarıyla sağlam temellere 
+                oturan, 1950'lerde altın çağını yaşayan ve 20. yüzyılda Felix Hausdorff tarafından geliştirilen 
+                topoloji, matematikte, geometrik şekillerin bükme, germe, uzatma veya sıkıştırma sonrasında 
+                değişmeyen özelliklerini inceleyen bir disiplindir.
+            </p>
+
+            <p>
+                Klasik geometriye katı cisimler olarak bakmak yerine, matematikçiler geometriyi şekilleri 
+                lastik gibi elastik bir malzeme olarak düşünerek incelemişlerdir. Topoloji kelimesi 
+                Yunanca'da "yer," "yüzey" veya "uzay" anlamına gelen "topos" ve "bilim" anlamına gelen 
+                "logos" kelimelerinden türetilmiştir.
+            </p>
+
+            <div class="highlight-box">
+                <p>
+                    Topoloji biliminin kurulduğu dönemlerde, 19. yüzyılın ortalarında, bu terimin yerine 
+                    Latince <strong>"analysis situs"</strong> (konumun analizi) terimi kullanılmıştır.
+                </p>
+            </div>
+
+            <p>
+                Son yıllarda büyük gelişmeler kaydeden ve diğer ülkelerdeki matematiksel ilerlemelerle 
+                paralel olarak Türkiye'de de pek çok araştırmacının ilgi gösterdiği topoloji, basitçe, 
+                topolojik değişmezleri, iki yönlü sürekli fonksiyonlar altında değişmeyen özellikler olarak 
+                inceleyen geniş bir matematik dalıdır.
+            </p>
+
+            <h3>Topolojinin Uygulama Alanı</h3>
+            
+            <p>
+                Topolojinin uygulama alanı analizden geometriye kadar oldukça geniştir. Herhangi bir eğri, 
+                yüzey, eğriler ailesi veya fonksiyon kümesi bir topolojik uzay olarak düşünülebilir.
+            </p>
+
+            <p>
+                Topoloji, matematiğin sadece ölçüm ve sayılarla ilgili bir alan olmadığını göstererek bu 
+                algıyı da değiştirmiştir. Topoloji, uzunluk, alan gibi ölçülebilir değerlerle değil, 
+                nesnelerin örtüşme, bağlantı ve uzamsal ilişkileriyle ilgilenir.
+            </p>
+
+            <h3>🌉 Königsberg Köprüleri Problemi</h3>
+            
+            <p>
+                İlk olarak Euler'in 1736'deki çalışmasıyla başlangıcını görebiliriz. Euler, Königsberg 
+                köprüleri problemi üzerine yayınladığı makalede mesafe ve ölçümle ilgilenmek yerine farklı 
+                bir geometri türünü ele almıştır.
+            </p>
+
+            <p>
+                Bu makale sadece yedi köprüyü tek bir yolculukta geçmenin imkansız olduğunu göstermekle 
+                kalmamış, aynı zamanda problemin modern notasyonla nasıl genelleştirilebileceğini göstermiştir.
+            </p>
+
+            <h3>Topolojinin Alt Dalları</h3>
+            
+            <p>
+                Topoloji, çağdaş matematiğin hemen hemen her dalında temel bir rol oynar. Topoloji, nokta-küme 
+                topolojisi, cebirsel topoloji, ve diferansiyel topoloji gibi birbirinden oldukça farklı 
+                dallardan oluşur, ancak bu farklı disiplinler arasında genellikle sınırlı ortaklık bulunur.
+            </p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4>📍 Genel Topoloji (Nokta Küme Topolojisi)</h4>
+                    <p>Genellikle yerel özelliklere odaklanan bir dal olup analizle yakından ilişkilidir.
+                    Topolojik uzayları tanımlamak için süreklilik kavramını genelleştirir. Bazen bu uzaylarda 
+                mesafeler tanımlanabilir ve bunlara metrik uzaylar denir.</p>
+            </div>
+            <div class="info-card">
+                <h4>🔺 Kombinatoriyel Topoloji</h4>
+                <p>Uzayların temel özelliklerini inceleyen bir dal olup, köşeler, kenarlar ve yüzler 
+                ağından oluşan uzayları ele alır. Topolojinin en eski dallarından biridir ve Euler'e 
+                kadar uzanır. Euler karakteristiğini kullanır: V - E + F = 2</p>
+            </div>
+            <div class="info-card">
+                <h4>🧮 Cebirsel Topoloji</h4>
+                <p>Uzayların genel özelliklerini inceleyen ve cebirsel nesneleri (gruplar ve halkalar) 
+                kullanarak topolojik sorunları ele alan bir dal. Topolojik problemleri çözmeyi daha 
+                kolay hale getiren bir cebirsel probleme dönüştürme yöntemlerini kullanır.</p>
+            </div>
+            <div class="info-card">
+                <h4>📐 Diferansiyel Topoloji</h4>
+                <p>Topolojinin daha özelleşmiş bir alt dalıdır. Topolojik uzaylarda sürekliliği ve 
+                düzgünlüğü inceler. Topolojik uzayların her noktasında bir tür pürüzsüzlük yapısının 
+                nasıl tanımlanabileceğini araştırır. Vektör alanları gibi manyetik veya elektrik 
+                alanların özelliklerini incelemek için kullanışlıdır.</p>
+            </div>
+        </div>
+
+        <h3>Euler Karakteristiği</h3>
+        
+        <p>
+            Kombinatoriyel Topoloji, topolojik olarak eşdeğer uzayların aynı sayısal değişmezliğe 
+            sahip olduğunu gösterir, bu özellik şimdi Euler karakteristiği olarak adlandırılır. Euler 
+            karakteristiği, V, E ve F ile temsil edilen bir nesnenin köşe, kenar ve yüz sayısından 
+            türetilir.
+        </p>
+
+        <div class="highlight-box">
+            <p>
+                <strong>Euler Karakteristiği Formülü:</strong><br>
+                χ = V - E + F = 2<br>
+                (Herhangi bir dışbükey çokyüzlü için)
+            </p>
+        </div>
+
+        <h3>Topolojik Eşdeğerlik Örnekleri</h3>
+        
+        <p>
+            Birbirlerine, kesmeden, yapıştırmadan, koparmadan deforme edilebilen şekiller topolojik 
+            olarak eşdeğer kabul edilir. Ünlü bir örnek donut ve kahve fincanıdır - her ikisi de bir 
+            deliğe sahip olduğu için topolojik olarak eşdeğerdir.
+        </p>
+
+        <div class="highlight-box">
+            <p>
+                <strong>Topolojik Şaka:</strong><br>
+                "Bir topolojist kahve fincanı ile donutu ayırt edemez!" Bu şaka, topolojide şekillerin 
+                detaylarından çok temel özelliklerinin önemli olduğunu vurgular.
+            </p>
+        </div>
+
+        <h3>Topolojinin Matematikte Kullanımı</h3>
+        
+        <p>
+            Topoloji, matematiğin birçok dalında kullanılır. Türevlenebilir denklemler, dinamik sistemler, 
+            düğüm teorisi ve Riemann yüzeyleri gibi konularda geniş bir uygulama yelpazesine sahiptir. 
+            Aynı zamanda fizikte, sicim teorisi ve evrenin uzay-zaman yapısını açıklamak için kullanılır.
+        </p>
+    </div>
+</section>
+
+<!-- Problemler Section -->
+<section id="problemler" class="section">
+    <div class="container">
+        <h2>Topoloji Alanında Ünlü Problemler ve Uygulama Alanları</h2>
+        
+        <h3>Meşhur Topoloji Problemleri</h3>
+        
+        <p>
+            Topoloji, matematiğin önemli bir dalıdır ve birçok ünlü problem ve teoremi içerir. 
+            İşte topolojinin meşhur problemlerinden bazıları:
+        </p>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <h4>🌉 Königsberg'in Yedi Köprüsü</h4>
+                <p>Bir şehirdeki yedi köprüyü bir kez geçerek dolaşmanın mümkün olup olmadığını bulmak. 
+                Euler tarafından çözülen bu problem, graf teorisinin başlangıcı olarak kabul edilir.</p>
+            </div>
+            <div class="info-card">
+                <h4>🎨 Dört Renk Teoremi</h4>
+                <p>Bu problem, bir haritanın bölgelerini dört renkle boyayarak her iki komşu bölgenin 
+                aynı renge sahip olmamasını sağlama sorununu ele alır. Bu problem, tarih boyunca önemli 
+                bir matematiksel sorun olarak kabul edilmiştir.</p>
+            </div>
+            <div class="info-card">
+                <h4>🌐 Poincaré Tahmini</h4>
+                <p>Üç boyutlu uzayda, her noktası bir küreye eşit uzaklıkta olan bir yüzeyin, bir küreye 
+                dönüştürülebilir olup olmadığını belirlemek. 2003 yılında Grigori Perelman tarafından çözüldü.</p>
+            </div>
+            <div class="info-card">
+                <h4>🪢 Knot Teorisi</h4>
+                <p>Bir ipin uçlarını birleştirerek oluşturulan düğümlerin sınıflandırılması ve 
+                özelliklerinin incelenmesi. DNA araştırmalarından polimer fiziğine kadar geniş uygulama 
+                alanına sahiptir.</p>
+            </div>
+        </div>
+
+        <h3>Diğer Önemli Teoremler</h3>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <h4>📊 Poincaré Spektral Dizi Teoremi</h4>
+                <p>Bu teorem, bir kompakt manifoldun (yüzeyin) Laplace operatörünün özdeğerlerinin ve 
+                özfonksiyonlarının özel bir şekilde sıralandığını açıklar.</p>
+            </div>
+            <div class="info-card">
+                <h4>➰ Jordan Eğrisi Teoremi</h4>
+                <p>Bu teorem, kapalı bir eğriyi iki bileşenli bir şekilde bölebilecek bir doğru veya 
+                eğrinin her zaman bulunabileceğini söyler.</p>
+            </div>
+            <div class="info-card">
+                <h4>🔍 Poincaré Kalıp Bulma Problemi</h4>
+                <p>Poincaré kalıp bulma problemini çözmeye çalışan teoremler, uzayın topolojik 
+                özellikleri ile ilgili karmaşık sorunları ele alır.</p>
+            </div>
+        </div>
+
+        <p>
+            Bu, sadece topolojinin ünlü problemlerinden bazılarıdır. Topoloji, oldukça derin ve karmaşık 
+            bir matematik dalıdır ve birçok farklı problem ve teorem içerir. Bu problemler ve teoremler, 
+            matematikçilerin ve araştırmacıların ilgisini çekmeye devam etmektedir.
+        </p>
+
+        <div class="highlight-box">
+            <p>
+                <strong>Daha Fazla Bilgi İçin:</strong><br>
+                Bu problemlerin yanı sıra, topoloji ile ilgili birçok problem ve çözümü için 
+                "Çözümleriyle Topoloji Problemleri" (İsmet Karaca) adlı kitap incelenebilir.
+            </p>
+        </div>
+
+        <h3>Matematikte Uygulama Alanları</h3>
+        
+        <p>
+            Topolojinin uygulama alanları çok çeşitlidir. Topoloji, matematiğin ana dallarından biridir 
+            ve uzay, yüzey, şekil gibi kavramları inceler. Topoloji, geometri, analiz, cebir, diferansiyel 
+            denklemler, dinamik sistemler, kriptoloji, robotik, bilgisayar bilimi gibi birçok matematiksel 
+            ve mühendislik alanında kullanılır.
+        </p>
+
+        <p>
+            Topoloji, nesnelerin değişmez özelliklerini (örneğin delik sayısı, bağlantı, yönelim) 
+            araştırır ve esnek dönüşümlere (örneğin germe, büzme, bükme) dayanıklıdır. Topoloji sayesinde 
+            karmaşık problemleri basitleştirmek ve yeni kavramlar keşfetmek mümkündür.
+        </p>
+
+        <h3>Modern Topoloji Araştırmaları</h3>
+        
+        <p>
+            Nokta-küme topolojisi olarak da adlandırılan genel topoloji, cebirsel, diferansiyel, geometrik 
+            dahil olmak üzere diğer tüm topoloji dallarının temelini oluşturmaktadır. Bu anlamda topolojik 
+            uzay kavramı zaman içerisinde birçok matematikçi tarafından çalışılarak genişletilmiştir.
+        </p>
+
+        <div class="info-cards">
+            <div class="info-card">
+                <h4>🔝 Supra Topolojik Uzay</h4>
+                <p>80'lerde Mashhour ve ark. tarafından tanımlanmıştır. Sonlu kesişimler altında kapalı 
+                olma özelliğini bulundurmayan uzayları inceler.</p>
+            </div>
+            <div class="info-card">
+                <h4>🔻 Infra Topoloji</h4>
+                <p>Adel M. Al odhari tarafından verilmiştir. Keyfi birleşim altında kapalılık özelliğini 
+                sağlamayan yapıları inceler.</p>
+            </div>
+            <div class="info-card">
+                <h4>☁️ Bulanık (Fuzzy) Topoloji</h4>
+                <p>Son yirmi yılda klasik küme yerine bulanık küme alınarak geliştirilen topolojik uzay 
+                çeşididir.</p>
+            </div>
+            <div class="info-card">
+                <h4>🧩 Esnek (Soft) Topoloji</h4>
+                <p>Klasik topolojinin yerini esnek küme yapıları kullanarak alan modern topoloji dalıdır.</p>
+            </div>
+        </div>
+
+        <p>
+            Bu yeni yapılar çok sayıda araştırmacı tarafından desteklenmiştir. Takip eden yıllarda 
+            topolojik uzaylar üzerinde kapsamlı araştırmalar yapıldı ve genelleştirmeler verildi. 
+            Topolojik uzaylar farklı bir alana taşınarak çalışmalar çok yönlü hale gelmiş ve gelişmiştir.
+        </p>
+
+        <div class="highlight-box">
+            <p>
+                <strong>Güncel Gelişmeler:</strong><br>
+                Ayrıca bulanık topolojinin supra bulanık topolojiye genelleştirildiği ve buna benzer 
+                birçok güncel çalışma da mevcuttur. Bu özel topolojik uzaylar, modern matematiğin 
+                gelişen alanlarındandır.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Oyunlar Section -->
+<section id="oyunlar" class="section">
+    <div class="container">
+        <h2>🎮 Topoloji Oyunları</h2>
+        
+        <p style="text-align: center; font-size: 18px; margin-bottom: 40px;">
+            Matematik ve Topolojiyi Oyunlarla Keşfedin! Bu oyunlar, topolojinin temel kavramlarını 
+            eğlenceli ve interaktif bir şekilde öğrenmenize yardımcı olur.
+        </p>
+
+        <div class="games-grid">
+            <!-- Sprouts Game -->
+            <div class="game-card" onclick="window.location.href='sprouts_game.html'">
+                <div class="game-icon">🌱</div>
+                <h3>Sprouts</h3>
+                <p>Conway'in klasik graf oyunu. Noktaları birleştir, yeni noktalar ekle ve rakibini köşeye sıkıştır!</p>
+                <div class="game-topics">
+                    <span class="topic-tag">Euler Karakteristiği</span>
+                    <span class="topic-tag">Graf Teorisi</span>
+                    <span class="topic-tag">Planar Graflar</span>
+                </div>
+                <button class="play-btn">Oyna</button>
+            </div>
+
+            <!-- Curve Game -->
+            <div class="game-card" onclick="window.location.href='curve_game.html'">
+                <div class="game-icon">〰️</div>
+                <h3>Eğri Özellikleri</h3>
+                <p>Eğrilerin topolojik özelliklerini öğren! Basit, kapalı ve bağlantılı eğrileri tanı.</p>
+                <div class="game-topics">
+                    <span class="topic-tag">Basit Eğriler</span>
+                    <span class="topic-tag">Kapalı Eğriler</span>
+                    <span class="topic-tag">Bağlantılılık</span>
+                </div>
+                <button class="play-btn">Oyna</button>
+            </div>
+
+            <!-- Euler Tour Game -->
+            <div class="game-card" onclick="window.location.href='euler_tour.html'">
+                <div class="game-icon">🔄</div>
+                <h3>Euler Turu</h3>
+                <p>Königsberg köprüleri problemi! Bir grapta her kenardan geçerek tur atabilir misin?</p>
+                <div class="game-topics">
+                    <span class="topic-tag">Euler Yolu</span>
+                    <span class="topic-tag">Graf Teorisi</span>
+                    <span class="topic-tag">Derece</span>
+                </div>
+                <button class="play-btn">Oyna</button>
+            </div>
+
+            <!-- Memory Game -->
+            <div class="game-card" onclick="window.location.href='hafizaoyunu.html'">
+                <div class="game-icon">🧩</div>
+                <h3>Topolojik Eşleştirme</h3>
+                <p>Harflerin normal ve açılmış hallerini eşleştir! Homeomorfizma kavramını keşfet.</p>
+                <div class="game-topics">
+                    <span class="topic-tag">Homeomorfizma</span>
+                    <span class="topic-tag">Deformasyon</span>
+                    <span class="topic-tag">Eşdeğerlik</span>
+                </div>
+                <button class="play-btn">Oyna</button>
+            </div>
+
+            <!-- Hex Game -->
+            <div class="game-card" onclick="window.location.href='hex_game.html'">
+                <div class="game-icon">⬡</div>
+                <h3>Hex</h3>
+                <p>John Nash'in ünlü strateji oyunu! Karşı kenarları birleştir ve kazanan ol.</p>
+                <div class="game-topics">
+                    <span class="topic-tag">Jordan Eğrisi</span>
+                    <span class="topic-tag">Dualite</span>
+                    <span class="topic-tag">Bağlantılılık</span>
+                </div>
+                <button class="play-btn">Oyna</button>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top: 40px;">
+            <h3 style="color: #667eea; margin-bottom: 15px;">🎯 Oyunlardan Neler Öğreneceksiniz?</h3>
+            <ul>
+                <li><strong>Graf Teorisi:</strong> Noktalar ve bağlantılar arasındaki ilişkileri anlama</li>
+                <li><strong>Topolojik Değişmezler:</strong> Şekillerin değişmeyen özelliklerini keşfetme</li>
+                <li><strong>Homeomorfizma:</strong> Şekillerin topolojik eşdeğerliğini görselleştirme</li>
+                <li><strong>Euler Karakteristiği:</strong> Matematiksel formülleri pratikte uygulama</li>
+                <li><strong>Stratejik Düşünme:</strong> Topolojik konseptleri kullanarak problem çözme</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p></p>
+        <p></p>
+    </div>
+</footer>
+
+<script>
+    // Navigation functionality
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Remove active class from all links and sections
+            navLinks.forEach(l => l.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked link
+            link.classList.add('active');
+            
+            // Show corresponding section
+            const sectionId = link.getAttribute('data-section');
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    // Smooth scroll for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>

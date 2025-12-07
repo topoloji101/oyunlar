@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topolojik Eşleştirme Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .tabs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px 30px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: normal;
+            color: #333;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            min-height: 700px;
+            margin-top: 20px;
+        }
+
+        .info-content {
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        .info-content h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .info-content h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .info-content p {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .info-content ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .info-content li {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .menu-screen {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 640px;
+        }
+
+        .game-title {
+            font-size: 32px;
+            color: #808080;
+            margin-bottom: 80px;
+            line-height: 1.4;
+            font-weight: normal;
+        }
+
+        .level-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .level-btn {
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: normal;
+            background: #228b22;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 180px;
+            position: relative;
+        }
+
+        .level-btn:hover {
+            background: #228b22;
+            border: 3px solid black;
+            padding: 17px 57px;
+        }
+
+        .game-screen {
+            display: none;
+        }
+        
+        .game-screen.active {
+            display: block;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            gap: 80px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            font-size: 18px;
+            font-weight: normal;
+            color: #000000;
+        }
+
+        .cards-grid {
+            display: grid;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px auto;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background: #000000;
+            border-radius: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover:not(.matched):not(.revealed) {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .card.revealed {
+            background: #808080;
+        }
+
+        .card.matched {
+            background: #6495ed;
+            cursor: default;
+        }
+
+        .card-back {
+            font-size: 32px;
+            color: white;
+            font-weight: normal;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .card.revealed .card-image,
+        .card.matched .card-image {
+            display: block;
+        }
+
+        .card.revealed .card-back,
+        .card.matched .card-back {
+            display: none;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            color: #228b22;
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            color: #000000;
+            margin: 15px 0;
+            font-weight: normal;
+        }
+
+        .modal-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: #6495ed;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: normal;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: #5680d0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 24px;
+            }
+
+            .card {
+                width: 80px;
+                height: 80px;
+            }
+
+            .cards-grid {
+                gap: 10px;
+            }
+
+            .game-info {
+                gap: 30px;
+            }
+
+            .tab {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+
+            body {
+                padding-top: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('game')">Oyun</button>
+            <button class="tab" onclick="switchTab('info')">Topolojik Özellikler</button>
+            <button class="tab" onclick="switchTab('home')">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="game-tab" class="tab-content active">
+            <div id="menu-screen" class="menu-screen">
+                <h1 class="game-title">Topolojik Olarak Eş Değer Olanları Bulma Hafıza Oyunu</h1>
+                <div class="level-buttons">
+                    <button class="level-btn" onclick="startGame(1)">KOLAY</button>
+                    <button class="level-btn" onclick="startGame(2)">ORTA</button>
+                    <button class="level-btn" onclick="startGame(3)">ZOR</button>
+                </div>
+            </div>
+
+            <div id="game-screen" class="game-screen">
+                <div class="game-info">
+                    <div class="info-item">Seviye: <span id="level-text">Kolay</span></div>
+                    <div class="info-item">Hamle: <span id="moves">0</span></div>
+                    <div class="info-item">Süre: <span id="timer">00:00</span></div>
+                </div>
+                <div id="cards-grid" class="cards-grid"></div>
+            </div>
+        </div>
+
+        <div id="info-tab" class="tab-content">
+            <div class="info-content">
+                <h2>Topolojik Eşdeğerlik Nedir?</h2>
+                <p>
+                    Topoloji matematiğinde, iki şeklin "topolojik olarak eşdeğer" olması demek, 
+                    birini yırtmadan, kesmeden veya yapıştırmadan diğerine dönüştürebileceğimiz anlamına gelir. 
+                    Bu dönüşüme "homeomorfizma" denir.
+                </p>
+
+                <h3>Oyundaki Örnekler</h3>
+                <p>
+                    Bu oyunda, harflerin normal halleri ile "açılmış" (düzleştirilmiş) halleri eşleştirilmektedir. 
+                    Örneğin:
+                </p>
+                <ul>
+                    <li><strong>A harfi:</strong> Üst kısmındaki kapalı üçgen bölge açıldığında düz bir çizgiye dönüşür</li>
+                    <li><strong>B harfi:</strong> İki kapalı bölgesi açıldığında farklı bir forma dönüşür</li>
+                    <li><strong>P harfi:</strong> Tek kapalı bölgesi açıldığında değişir</li>
+                </ul>
+
+                <h3>Önemli Kavramlar</h3>
+                <p>
+                    <strong>Euler Karakteristiği:</strong> Topolojik bir şeklin temel özelliklerinden biridir. 
+                    V (köşe) - E (kenar) + F (yüzey) formülüyle hesaplanır ve topolojik dönüşümler sırasında değişmez.
+                </p>
+                <p>
+                    <strong>Deformasyon:</strong> Bir şekli esneterek, bükerek veya sıkıştırarak başka bir şekle 
+                    dönüştürme işlemidir. Yırtma veya yapıştırma olmadığı sürece topolojik özellikler korunur.
+                </p>
+
+                <h3>Günlük Hayattan Örnek</h3>
+                <p>
+                    Klasik bir örnek: Bir fincan ile bir simit topolojik olarak eşdeğerdir! Her ikisinde de 
+                    tam bir delik vardır (fincanda kulp, simitte ortadaki boşluk). Kil gibi esnek bir malzemeden 
+                    yapılmış bir fincanu yırtmadan bir simide dönüştürebilirsiniz.
+                </p>
+            </div>
+        </div>
+
+        <div id="home-tab" class="tab-content">
+            <div class="info-content" style="text-align: center; padding: 100px 20px;">
+                <h2>Ana Sayfaya Yönlendirme</h2>
+                <p style="margin-bottom: 30px;">Ana sayfaya dönmek için aşağıdaki butona tıklayın:</p>
+                <button class="level-btn" onclick="window.location.href='index.html'" style="margin: 0 auto;">
+                    Ana Sayfaya Git
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Tebrikler!</h2>
+            <p>Süre: <span id="final-time">00:00</span></p>
+            <p>Hamle sayısı: <span id="final-moves">0</span></p>
+            <button class="modal-btn" onclick="returnToMenu()">Ana Menüye Dön</button>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Tüm sekmeleri gizle
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Tüm sekme butonlarından active sınıfını kaldır
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Seçilen sekmeyi göster
+            if (tabName === 'game') {
+                document.getElementById('game-tab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+            } else if (tabName === 'info') {
+                document.getElementById('info-tab').classList.add('active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            } else if (tabName === 'home') {
+                document.getElementById('home-tab').classList.add('active');
+                document.querySelectorAll('.tab')[2].classList.add('active');
+            }
+        }
+
+        const pairs = [
+            ["aharfi", "aacilim"],
+            ["bharfi", "bacilim"],
+            ["charfi", "cacilim"],
+            ["dharfi", "dacilim"],
+            ["eharfi", "eacilim"],
+            ["hharfi", "hacilim"],
+            ["kharfi", "kacilim"],
+            ["pharfi", "pacilim"],
+            ["qharfi", "qacilim"],
+            ["rharfi", "racilim"]
+        ];
+
+        let gameState = {
+            level: null,
+            moves: 0,
+            matches: 0,
+            selectedCards: [],
+            cards: [],
+            startTime: null,
+            timerInterval: null,
+            canClick: true,
+            elapsedTime: 0
+        };
+
+        function startGame(selectedLevel) {
+            gameState = {
+                level: selectedLevel,
+                moves: 0,
+                matches: 0,
+                selectedCards: [],
+                cards: [],
+                startTime: Date.now(),
+                timerInterval: null,
+                canClick: true,
+                elapsedTime: 0
+            };
+
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+
+            const levelTexts = {1: 'Kolay', 2: 'Orta', 3: 'Zor'};
+            document.getElementById('level-text').textContent = levelTexts[selectedLevel];
+            document.getElementById('moves').textContent = '0';
+
+            const pairsCount = {1: 6, 2: 8, 3: 10}[selectedLevel];
+            const gamePairs = pairs.slice(0, pairsCount);
+
+            const cardsData = [];
+            gamePairs.forEach(pair => {
+                cardsData.push({name: pair[0], match: pair[1]});
+                cardsData.push({name: pair[1], match: pair[0]});
+            });
+
+            cardsData.sort(() => Math.random() - 0.5);
+
+            const cols = 4;
+            const rows = Math.ceil(cardsData.length / cols);
+            
+            const cardsGrid = document.getElementById('cards-grid');
+            cardsGrid.innerHTML = '';
+            cardsGrid.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
+
+            cardsData.forEach((cardData, index) => {
+                const card = {
+                    name: cardData.name,
+                    match: cardData.match,
+                    revealed: false,
+                    matched: false,
+                    element: null,
+                    index: index
+                };
+
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.innerHTML = `
+                    <div class="card-back">?</div>
+                    <img class="card-image" src="./images/${cardData.name}.png" alt="${cardData.name}" onerror="handleImageError(this)">
+                `;
+                cardElement.onclick = () => handleCardClick(index);
+
+                card.element = cardElement;
+                gameState.cards.push(card);
+                cardsGrid.appendChild(cardElement);
+            });
+
+            startTimer();
+        }
+
+        function handleImageError(img) {
+            img.style.display = 'none';
+            const cardBack = img.parentElement.querySelector('.card-back');
+            if (cardBack) {
+                cardBack.style.display = 'flex';
+            }
+        }
+
+        function handleCardClick(index) {
+            if (!gameState.canClick) return;
+            
+            const card = gameState.cards[index];
+            
+            if (card.matched || card.revealed || gameState.selectedCards.includes(index)) {
+                return;
+            }
+
+            card.revealed = true;
+            card.element.classList.add('revealed');
+            gameState.selectedCards.push(index);
+
+            if (gameState.selectedCards.length === 2) {
+                gameState.moves++;
+                document.getElementById('moves').textContent = gameState.moves;
+
+                const card1 = gameState.cards[gameState.selectedCards[0]];
+                const card2 = gameState.cards[gameState.selectedCards[1]];
+
+                if (card1.name === card2.match || card2.name === card1.match) {
+                    card1.matched = true;
+                    card2.matched = true;
+                    card1.element.classList.remove('revealed');
+                    card2.element.classList.remove('revealed');
+                    card1.element.classList.add('matched');
+                    card2.element.classList.add('matched');
+                    gameState.matches++;
+                    gameState.selectedCards = [];
+
+                    const pairsCount = {1: 6, 2: 8, 3: 10}[gameState.level];
+                    if (gameState.matches === pairsCount) {
+                        gameState.elapsedTime = Date.now() - gameState.startTime;
+                        setTimeout(() => endGame(), 300);
+                    }
+                } else {
+                    gameState.canClick = false;
+                    setTimeout(() => {
+                        card1.revealed = false;
+                        card2.revealed = false;
+                        card1.element.classList.remove('revealed');
+                        card2.element.classList.remove('revealed');
+                        gameState.selectedCards = [];
+                        gameState.canClick = true;
+                    }, 1000);
+                }
+            }
+        }
+
+        function startTimer() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            gameState.timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+                updateTimerDisplay(elapsed);
+            }, 1000);
+        }
+
+        function updateTimerDisplay(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function endGame() {
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+            
+            const elapsed = Math.floor(gameState.elapsedTime / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            document.getElementById('final-time').textContent = timeText;
+            document.getElementById('final-moves').textContent = gameState.moves;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function returnToMenu() {
+            document.getElementById('modal').classList.remove('show');
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
+            
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const gameScreen = document.getElementById('game-screen');
+                const modal = document.getElementById('modal');
+                
+                if (!modal.classList.contains('show') && gameScreen.style.display === 'block') {
+                    returnToMenu();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

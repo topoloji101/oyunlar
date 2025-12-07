@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euler Turu Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .main-tabs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .main-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-tab {
+            flex: 1;
+            padding: 20px 30px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: normal;
+            color: #333;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .main-tab:hover {
+            background: #e0e0e0;
+        }
+
+        .main-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .main-tab-content {
+            display: none;
+        }
+
+        .main-tab-content.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .info-content {
+            padding: 40px;
+            line-height: 1.8;
+        }
+
+        .info-content h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .info-content h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .info-content p {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .info-content ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .info-content li {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .home-btn {
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: normal;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 auto;
+            display: inline-block;
+        }
+
+        .home-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            color: #667eea;
+            background: white;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #quiz-image {
+            max-width: 400px;
+            max-height: 300px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .question-text {
+            text-align: center;
+            font-size: 18px;
+            color: #495057;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-yes {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-yes:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-no {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-no:hover:not(:disabled) {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .stats h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            padding: 8px 0;
+            font-size: 16px;
+            color: #495057;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .canvas-container {
+            text-align: center;
+        }
+
+        #drawing-canvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: crosshair;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .drawing-controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .color-btn.active {
+            border: 3px solid #667eea;
+            transform: scale(1.1);
+        }
+
+        input[type="range"] {
+            width: 150px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 20px;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-btn:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 768px) {
+            .main-tab {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+
+            body {
+                padding-top: 80px;
+            }
+
+            #drawing-canvas {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-tabs-container">
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="switchMainTab('game')">Oyun</button>
+            <button class="main-tab" onclick="switchMainTab('info')">Topolojik Özellikler</button>
+            <button class="main-tab" onclick="switchMainTab('home')">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="game-main-tab" class="main-tab-content active">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('quiz')">Quiz</button>
+                <button class="tab" onclick="switchTab('drawing')">Çizim</button>
+            </div>
+
+            <div id="quiz-tab" class="tab-content active">
+                <div class="image-container">
+                    <img id="quiz-image" src="" alt="Graf Resmi">
+                </div>
+                
+                <p class="question-text">
+                    Elimizi Kaldırmadan Şekli Çizebilir miyiz?<br>
+                    Çizebilirsek Tur Atılabilir, Çizemezsek Tur Atılamaz.<br>
+                    Denemek için Çizim Sekmesini Tıklayabilirsiniz.
+                </p>
+
+                <div class="button-group">
+                    <button class="btn btn-yes" onclick="checkAnswer(true)">Tur Atılabilir</button>
+                    <button class="btn btn-no" onclick="checkAnswer(false)">Tur Atılamaz</button>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress">0%</div>
+                </div>
+
+                <div class="stats">
+                    <h3>İstatistikler</h3>
+                    <div class="stat-item">
+                        <span>Toplam Cevaplanan:</span>
+                        <span id="stat-total">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Doğru Cevap:</span>
+                        <span id="stat-correct" style="color: #28a745; font-weight: 600;">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Yanlış Cevap:</span>
+                        <span id="stat-wrong" style="color: #dc3545; font-weight: 600;">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Doğruluk Oranı:</span>
+                        <span id="stat-accuracy" style="color: #667eea; font-weight: 600;">%0.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tur Atılabilir Cevabı:</span>
+                        <span id="stat-has-euler">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Tur Atılamaz Cevabı:</span>
+                        <span id="stat-no-euler">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="drawing-tab" class="tab-content">
+                <div class="drawing-controls">
+                    <button class="btn" style="background: #667eea; color: white;" onclick="clearCanvas()">Temizle</button>
+                    
+                    <div class="control-group">
+                        <label>Renk:</label>
+                        <div class="color-btn active" style="background: black;" onclick="selectColor('black')"></div>
+                        <div class="color-btn" style="background: red;" onclick="selectColor('red')"></div>
+                        <div class="color-btn" style="background: blue;" onclick="selectColor('blue')"></div>
+                        <div class="color-btn" style="background: green;" onclick="selectColor('green')"></div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Kalınlık:</label>
+                        <input type="range" id="thickness" min="1" max="10" value="2">
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="drawing-canvas" width="700" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div id="info-main-tab" class="main-tab-content">
+            <div class="info-content">
+                <h2>Euler Turu ve Graf Teorisi</h2>
+                <p>
+                    Euler turu, graf teorisinin en eski ve en önemli problemlerinden biridir. 
+                    18. yüzyılda Leonhard Euler tarafından ünlü "Königsberg Köprüleri Problemi" 
+                    ile ortaya atılmıştır ve modern graf teorisinin temelini oluşturur.
+                </p>
+
+                <h3>Königsberg Köprüleri Problemi</h3>
+                <p>
+                    1736 yılında, Königsberg (şimdiki Kaliningrad) şehrinde yedi köprü bulunuyordu. 
+                    Şehir halkı, "Her köprüden bir kez geçerek tüm şehri dolaşmak mümkün müdür?" 
+                    sorusunu merak ediyordu. Euler, bu sorunun cevabının "hayır" olduğunu matematiksel 
+                    olarak kanıtladı ve bu süreçte graf teorisini kurdu.
+                </p>
+
+                <h3>Euler Turu Nedir?</h3>
+                <p>
+                    Bir grafta <strong>Euler turu</strong>, her kenarı tam olarak bir kez kullanarak 
+                    başlangıç noktasına geri dönen bir yoldur. Eğer bir graf Euler turuna sahipse, 
+                    bu grafa "Euler grafı" denir.
+                </p>
+                <p>
+                    <strong>Euler yolu</strong> ise, her kenarı tam olarak bir kez kullanan ancak 
+                    başlangıç noktasına dönmek zorunda olmayan bir yoldur.
+                </p>
+
+                <h3>Euler Teoremi</h3>
+                <p>
+                    Euler, bir grafın Euler turuna sahip olması için gerekli ve yeterli koşulu keşfetti:
+                </p>
+                <ul>
+                    <li><strong>Euler Turu Koşulu:</strong> Bir bağlantılı grafın Euler turu vardır 
+                    ancak ve ancak her düğümün derecesi (bağlı olduğu kenar sayısı) çift sayıdır.</li>
+                    <li><strong>Euler Yolu Koşulu:</strong> Bir bağlantılı grafın Euler yolu vardır 
+                    ancak ve ancak tam olarak iki düğümün derecesi tek sayıdır (diğer tüm düğümlerin 
+                    derecesi çifttir).</li>
+                </ul>
+
+                <h3>Neden Bu Önemli?</h3>
+                <p>
+                    <strong>Derece Kavramı:</strong> Bir düğümün derecesi, ona bağlı kenar sayısıdır. 
+                    Euler'in keşfi, bir grafın geometrik görünümünden ziyade, düğümlerin derecelerinin 
+                    önemli olduğunu gösterdi. Bu, topolojik düşüncenin başlangıcıdır.
+                </p>
+                <p>
+                    <strong>Topolojik Özellik:</strong> Euler turu, grafın şeklinden bağımsız, sadece 
+                    bağlantı yapısına bağlı bir özelliktir. Grafiği nasıl çizdiğiniz önemli değil - 
+                    düğüm dereceleri aynı kaldığı sürece, Euler turu varlığı değişmez.
+                </p>
+
+                <h3>Pratik Uygulamalar</h3>
+                <ul>
+                    <li><strong>Çöp Toplama Rotaları:</strong> Şehirde her caddeyi en az bir kez 
+                    geçerek optimal bir rota oluşturma (Çin Postacı Problemi)</li>
+                    <li><strong>Kar Temizleme:</strong> Kar küreme araçları için verimli rotalar</li>
+                    <li><strong>Devre Kartı Tasarımı:</strong> Elektronik devrelerde tek seferde 
+                    lehimleme yapılabilecek yolları bulma</li>
+                    <li><strong>DNA Dizileme:</strong> DNA parçalarını birleştirirken Euler yolları 
+                    kullanılır (de Bruijn grafları)</li>
+                    <li><strong>Bulmacalar:</strong> "Bir çizgiyle çiz" bulmacaları Euler yolu 
+                    problemleridir</li>
+                </ul>
+
+                <h3>Hamilton Yolu ile Farkı</h3>
+                <p>
+                    Euler yolu her <em>kenarı</em> bir kez ziyaret ederken, Hamilton yolu her 
+                    <em>düğümü</em> bir kez ziyaret eder. İlginç bir şekilde:
+                </p>
+                <ul>
+                    <li>Euler yolu varlığını kontrol etmek kolaydır (düğüm derecelerine bakılır)</li>
+                    <li>Hamilton yolu varlığını kontrol etmek NP-complete bir problemdir 
+                    (çok zordur ve bilinen hızlı algoritma yoktur)</li>
+                </ul>
+
+                <h3>Matematiksel Güzellik</h3>
+                <p>
+                    Euler'in çözümü, görünüşte basit bir şehir gezisi sorununu matematiksel bir 
+                    teoreme dönüştürdü. Bu, modern matematiğin özelliğidir: gerçek dünya problemleri, 
+                    soyut matematiksel yapılarla modellenir ve bu yapılar çözüm yolları sunar.
+                </p>
+                <p>
+                    Graf teorisi bugün bilgisayar bilimi, ağ analizi, biyoloji, sosyal bilimler 
+                    ve daha birçok alanda kullanılır. Hepsi Euler'in 18. yüzyılda attığı bu ilk 
+                    adımdan kaynaklanır.
+                </p>
+            </div>
+        </div>
+
+        <div id="home-main-tab" class="main-tab-content">
+            <div class="info-content" style="text-align: center; padding: 100px 20px;">
+                <h2>Ana Sayfaya Yönlendirme</h2>
+                <p style="margin-bottom: 30px;">Ana sayfaya dönmek için aşağıdaki butona tıklayın:</p>
+                <button class="home-btn" onclick="window.location.href='index.html'">
+                    Ana Sayfaya Git
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-message"></p>
+            <button class="modal-btn" onclick="closeModal()">Tamam</button>
+        </div>
+    </div>
+
+    <script>
+        function switchMainTab(tabName) {
+            document.querySelectorAll('.main-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.main-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            if (tabName === 'game') {
+                document.getElementById('game-main-tab').classList.add('active');
+                document.querySelectorAll('.main-tab')[0].classList.add('active');
+            } else if (tabName === 'info') {
+                document.getElementById('info-main-tab').classList.add('active');
+                document.querySelectorAll('.main-tab')[1].classList.add('active');
+            } else if (tabName === 'home') {
+                document.getElementById('home-main-tab').classList.add('active');
+                document.querySelectorAll('.main-tab')[2].classList.add('active');
+            }
+        }
+
+        const correctAnswers = {
+            "1.png": true, "2.png": false, "3.png": false, "4.png": true,
+            "5.png": true, "6.png": false, "7.png": true, "8.png": false,
+            "9.png": true, "10.png": true, "11.png": true, "12.png": true,
+            "13.png": false, "14.png": false, "15.png": true, "16.png": false,
+            "17.png": false, "18.png": true, "19.png": true, "20.png": false
+        };
+
+        let images = Object.keys(correctAnswers).map(filename => ({
+            filename: filename,
+            path: `./resimler/${filename}`,
+            answered: false
+        }));
+
+        images.sort(() => Math.random() - 0.5);
+
+        let currentIndex = 0;
+        let stats = {
+            total: 0,
+            correct: 0,
+            wrong: 0,
+            hasEuler: 0,
+            noEuler: 0
+        };
+
+        let canvas, ctx, drawing = false, currentColor = 'black';
+
+        window.onload = function() {
+            showCurrentImage();
+            initCanvas();
+        };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        };
+
+        function showCurrentImage() {
+            if (currentIndex >= images.length) {
+                showModal('Tamamlandı!', 
+                    `Quiz bitti!\nDoğruluk oranınız: %${((stats.correct / stats.total) * 100).toFixed(1)}`);
+                return;
+            }
+
+            const img = document.getElementById('quiz-image');
+            img.src = images[currentIndex].path;
+
+            const progress = ((currentIndex + 1) / images.length) * 100;
+            const progressFill = document.getElementById('progress');
+            progressFill.style.width = progress + '%';
+            progressFill.textContent = Math.round(progress) + '%';
+
+            const buttons = document.querySelectorAll('.button-group .btn');
+            if (images[currentIndex].answered) {
+                buttons.forEach(btn => btn.disabled = true);
+            } else {
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        function checkAnswer(userAnswer) {
+            if (images[currentIndex].answered) return;
+
+            const filename = images[currentIndex].filename;
+            const correctAnswer = correctAnswers[filename];
+
+            stats.total++;
+            userAnswer ? stats.hasEuler++ : stats.noEuler++;
+
+            if (userAnswer === correctAnswer) {
+                stats.correct++;
+                showModal('Doğru!', 'Cevabınız doğru!');
+            } else {
+                stats.wrong++;
+                showModal('Yanlış!', 'Cevabınız yanlış!');
+            }
+
+            images[currentIndex].answered = true;
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-correct').textContent = stats.correct;
+            document.getElementById('stat-wrong').textContent = stats.wrong;
+            document.getElementById('stat-has-euler').textContent = stats.hasEuler;
+            document.getElementById('stat-no-euler').textContent = stats.noEuler;
+
+            const accuracy = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
+            document.getElementById('stat-accuracy').textContent = `%${accuracy.toFixed(1)}`;
+        }
+
+        function showModal(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            if (currentIndex < images.length - 1) {
+                currentIndex++;
+                showCurrentImage();
+            }
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('drawing-canvas');
+            ctx = canvas.getContext('2d');
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('touchmove', handleTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = document.getElementById('thickness').value;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            if (e.type === 'touchstart') {
+                drawing = true;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            } else if (e.type === 'touchmove' && drawing) {
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = document.getElementById('thickness').value;
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function selectColor(color) {
+            currentColor = color;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

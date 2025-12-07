@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprouts: Euler Karakteristiği Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 18px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-right: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav-tab:last-child {
+            border-right: none;
+        }
+
+        .nav-tab:hover {
+            background: #e8e8e8;
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -3px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Game Tab */
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #canvas {
+            border: 3px solid #333;
+            border-radius: 10px;
+            cursor: crosshair;
+            display: block;
+            background: white;
+            margin: 0 auto;
+        }
+
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .status {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* Topology Tab */
+        .topology-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .topology-content h2 {
+            color: #667eea;
+            margin: 25px 0 15px 0;
+            font-size: 24px;
+        }
+
+        .topology-content h3 {
+            color: #764ba2;
+            margin: 20px 0 10px 0;
+            font-size: 20px;
+        }
+
+        .topology-content p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .topology-content ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .topology-content li {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .formula {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .example-box {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tab {
+                font-size: 14px;
+                padding: 15px 10px;
+            }
+            
+            #canvas {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('game')">
+                🎮 Oyun
+            </button>
+            <button class="nav-tab" onclick="switchTab('topology')">
+                📐 Topolojik Özellikler
+            </button>
+            <button class="nav-tab" onclick="window.location.href='index.html'">
+                🏠 Anasayfa
+            </button>
+        </div>
+
+        <!-- Game Tab -->
+        <div id="gameTab" class="tab-content active">
+            <h1>🌱 Sprouts: Euler Karakteristiği Oyunu</h1>
+            
+            <div class="controls">
+                <button onclick="game.newGame()">🎮 Yeni Oyun</button>
+                <button onclick="game.showEuler()">📊 Euler Karakteristiği</button>
+            </div>
+
+            <div class="status" id="status">Oyuncu 1'in sırası</div>
+
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+
+        <!-- Topology Tab -->
+        <div id="topologyTab" class="tab-content">
+            <div class="topology-content">
+                <h1>📐 Sprouts Oyununun Topolojik Özellikleri</h1>
+
+                <h2>🎯 Oyun Hakkında</h2>
+                <p>
+                    Sprouts, 1967 yılında Cambridge Üniversitesi'nde John Horton Conway ve Michael S. Paterson 
+                    tarafından icat edilmiş bir kağıt-kalem oyunudur. Oyun, graf teorisi ve topoloji ile 
+                    yakından ilişkilidir ve matematiksel açıdan son derece zengin bir yapıya sahiptir.
+                </p>
+
+                <h2>📊 Euler Karakteristiği</h2>
+                <p>
+                    Euler karakteristiği, topolojik bir uzayın temel özelliklerinden biridir. Bir graf veya 
+                    çokyüzlü için Euler karakteristiği şu formülle hesaplanır:
+                </p>
+                <div class="formula">
+                    χ = V - E + F
+                </div>
+                <p>Burada:</p>
+                <ul>
+                    <li><strong>V (Vertices):</strong> Köşe (nokta) sayısı</li>
+                    <li><strong>E (Edges):</strong> Kenar (çizgi) sayısı</li>
+                    <li><strong>F (Faces):</strong> Yüz (bölge) sayısı</li>
+                    <li><strong>χ (Chi):</strong> Euler karakteristiği</li>
+                </ul>
+
+                <h3>Düzlemsel Graflar İçin</h3>
+                <p>
+                    Sprouts oyunu düzlemsel bir graf oluşturur (kenarlar kesişmez). Bağlantılı bir düzlemsel 
+                    graf için Euler karakteristiği her zaman <strong>χ = 2</strong>'dir. Bu, topolojinin en 
+                    temel teoremlerinden biridir.
+                </p>
+
+                <div class="example-box">
+                    <strong>Örnek:</strong> 3 nokta ile başlayan bir Sprouts oyununda:
+                    <ul>
+                        <li>Başlangıç: V = 3, E = 0, F = 1 → χ = 3 - 0 + 1 = 4</li>
+                        <li>İlk hamle sonrası: V = 4, E = 2, F = 2 → χ = 4 - 2 + 2 = 4</li>
+                    </ul>
+                    <em>Not: Sprouts'ta F hesabı özel kurallar gerektirir.</em>
+                </div>
+
+                <h2>🎲 Oyun Kuralları</h2>
+                <ul>
+                    <li>Oyun n adet noktayla başlar</li>
+                    <li>Her hamle, iki nokta arasına bir eğri çizerek yapılır</li>
+                    <li>Çizilen eğrinin ortasına yeni bir nokta eklenir</li>
+                    <li>Her noktadan en fazla 3 çizgi çıkabilir</li>
+                    <li>Eğriler kendini veya başka eğrileri kesemez</li>
+                    <li>Hamle yapamayan oyuncu kaybeder</li>
+                </ul>
+
+                <h2>🔢 Matematiksel Özellikler</h2>
+                
+                <h3>Hamle Sayısı</h3>
+                <p>
+                    n noktayla başlayan bir Sprouts oyunu en az <strong>2n</strong> ve en fazla 
+                    <strong>3n - 1</strong> hamle sürer. Bu sınırlar, her noktanın maksimum 3 bağlantıya 
+                    sahip olabileceği kuralından kaynaklanır.
+                </p>
+
+                <h3>Kazanan Strateji</h3>
+                <p>
+                    Sprouts oyununun kazanan stratejisi, başlangıç nokta sayısına bağlıdır:
+                </p>
+                <ul>
+                    <li>n = 1, 2, 4, 5: İlk oyuncu kazanır</li>
+                    <li>n = 0, 3, 6: İkinci oyuncu kazanır</li>
+                    <li>Daha büyük n değerleri için strateji daha karmaşıktır</li>
+                </ul>
+
+                <h2>🌐 Topolojik Bağlantılar</h2>
+                
+                <h3>Graf Teorisi</h3>
+                <p>
+                    Sprouts oyunu, planar (düzlemsel) graf teorisinin mükemmel bir örneğidir. Oyun sırasında 
+                    oluşan yapı, her zaman düzlemde çizilebilir bir graftır.
+                </p>
+
+                <h3>Homeomorfizm</h3>
+                <p>
+                    İki Sprouts konfigürasyonu, eğer biri sürekli deformasyonlarla diğerine dönüştürülebiliyorsa 
+                    topolojik olarak eşdeğerdir. Bu, oyunun stratejisini anlamak için önemlidir.
+                </p>
+
+                <h3>Düğüm Teorisi</h3>
+                <p>
+                    Sprouts'ta çizilen eğriler, düğüm teorisi açısından da incelenebilir. Ancak oyun kuralları 
+                    gereği karmaşık düğümler oluşmaz.
+                </p>
+
+                <div class="example-box">
+                    <strong>İlginç Gerçek:</strong> Sprouts oyunu, bilgisayar biliminde NP-hard 
+                    problemlerle ilişkilendirilmiştir. Bir pozisyonun kazanan mı yoksa kaybeden mi 
+                    olduğunu belirlemek, hesaplama açısından zordur.
+                </div>
+
+                <h2>📚 Kaynaklar ve İleri Okuma</h2>
+                <ul>
+                    <li>Conway, J. H. (1976). "On Numbers and Games"</li>
+                    <li>Gardner, M. (1967). "Mathematical Games" - Scientific American</li>
+                    <li>Applegate, D., Jacobson, G., & Sleator, D. (1991). "Computer Analysis of Sprouts"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Başlangıç Noktaları</h2>
+            <p id="modalText">Kaç nokta ile başlamak istersiniz?</p>
+            <input type="number" id="modalInput" min="2" max="15" value="2">
+            <div class="modal-buttons">
+                <button onclick="game.handleModalOK()">Tamam</button>
+                <button onclick="game.handleModalCancel()">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Function
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            if (tabName === 'game') {
+                document.getElementById('gameTab').classList.add('active');
+                document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            } else if (tabName === 'topology') {
+                document.getElementById('topologyTab').classList.add('active');
+                document.querySelectorAll('.nav-tab')[1].classList.add('active');
+            }
+        }
+
+        class SproutsGame {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.statusLabel = document.getElementById('status');
+                
+                this.vertices = [];
+                this.edges = [];
+                this.currentPlayer = 1;
+                this.drawing = false;
+                this.startVertex = null;
+                this.MAX_CONNECTIONS = 3;
+                this.controlPoint = null;
+                this.tempLine = null;
+                
+                this.MIN_WIDTH = 800;
+                this.MIN_HEIGHT = 600;
+                
+                this.setupEvents();
+                this.promptNewGame();
+            }
+
+            setupEvents() {
+                this.canvas.addEventListener('mousedown', (e) => this.canvasClick(e));
+                this.canvas.addEventListener('mousemove', (e) => this.canvasDrag(e));
+                this.canvas.addEventListener('mouseup', (e) => this.canvasRelease(e));
+            }
+
+            promptNewGame() {
+                const modal = document.getElementById('modal');
+                document.getElementById('modalTitle').textContent = 'Başlangıç Noktaları';
+                document.getElementById('modalText').textContent = 'Kaç nokta ile başlamak istersiniz?';
+                document.getElementById('modalInput').value = '2';
+                modal.style.display = 'flex';
+            }
+
+            handleModalOK() {
+                const numPoints = parseInt(document.getElementById('modalInput').value) || 2;
+                document.getElementById('modal').style.display = 'none';
+                this.startNewGame(numPoints);
+            }
+
+            handleModalCancel() {
+                document.getElementById('modal').style.display = 'none';
+                if (this.vertices.length === 0) {
+                    this.startNewGame(2);
+                }
+            }
+
+            newGame() {
+                this.promptNewGame();
+            }
+
+            startNewGame(numPoints) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.vertices = [];
+                this.edges = [];
+                this.currentPlayer = 1;
+                this.drawing = false;
+                this.startVertex = null;
+                
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                const radius = Math.min(width, height) * 0.35;
+                const centerX = width / 2;
+                const centerY = height / 2;
+                
+                for (let i = 0; i < numPoints; i++) {
+                    const angle = 2 * Math.PI * i / numPoints;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    this.addVertex(x, y);
+                }
+                
+                this.updateStatus();
+            }
+
+            addVertex(x, y) {
+                const vertexId = this.vertices.length;
+                this.vertices.push({x, y, connections: 0});
+                this.drawVertex(x, y, vertexId);
+            }
+
+            drawVertex(x, y, vertexId) {
+                const radius = 10;
+                const vertex = this.vertices[vertexId];
+                
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                this.ctx.fillStyle = vertex.connections < this.MAX_CONNECTIONS ? '#4ade80' : '#ef4444';
+                this.ctx.fill();
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+            }
+
+            findClosestVertex(x, y) {
+                let closestDist = Infinity;
+                let closestVertex = null;
+                
+                for (let i = 0; i < this.vertices.length; i++) {
+                    const v = this.vertices[i];
+                    if (v.connections >= this.MAX_CONNECTIONS) continue;
+                    
+                    const dist = Math.sqrt((x - v.x) ** 2 + (y - v.y) ** 2);
+                    if (dist < 30 && dist < closestDist) {
+                        closestDist = dist;
+                        closestVertex = i;
+                    }
+                }
+                
+                return closestVertex;
+            }
+
+            calculateControlPoints(startX, startY, endX, endY, offsetFactor = 0.3) {
+                const midX = (startX + endX) / 2;
+                const midY = (startY + endY) / 2;
+                
+                const dx = endX - startX;
+                const dy = endY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                const offset = distance * offsetFactor;
+                const control1X = midX - dy * offset / distance;
+                const control1Y = midY + dx * offset / distance;
+                const control2X = midX + dy * offset / distance;
+                const control2Y = midY - dx * offset / distance;
+                
+                return [{x: control1X, y: control1Y}, {x: control2X, y: control2Y}];
+            }
+
+            drawCurve(startX, startY, controlX, controlY, endX, endY, temp = false) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+                this.ctx.strokeStyle = temp ? '#3b82f6' : '#000';
+                this.ctx.lineWidth = 3;
+                this.ctx.stroke();
+            }
+
+            canvasClick(event) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                const vertexId = this.findClosestVertex(x, y);
+                
+                if (vertexId !== null) {
+                    this.drawing = true;
+                    this.startVertex = vertexId;
+                    this.controlPoint = null;
+                }
+            }
+
+            canvasDrag(event) {
+                if (!this.drawing || this.startVertex === null) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                const start = this.vertices[this.startVertex];
+                const controls = this.calculateControlPoints(start.x, start.y, x, y);
+                this.controlPoint = controls[0];
+                
+                this.redraw();
+                this.drawCurve(start.x, start.y, this.controlPoint.x, this.controlPoint.y, x, y, true);
+            }
+
+            canvasRelease(event) {
+                if (!this.drawing) return;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                const endVertex = this.findClosestVertex(x, y);
+                
+                if (endVertex !== null && endVertex !== this.startVertex) {
+                    const start = this.vertices[this.startVertex];
+                    const end = this.vertices[endVertex];
+                    
+                    const newX = (start.x + end.x) / 2;
+                    const newY = (start.y + end.y) / 2;
+                    
+                    const controls = this.calculateControlPoints(start.x, start.y, end.x, end.y);
+                    
+                    this.drawCurve(start.x, start.y, controls[0].x, controls[0].y, newX, newY);
+                    this.drawCurve(newX, newY, controls[1].x, controls[1].y, end.x, end.y);
+                    
+                    const newVertexId = this.vertices.length;
+                    this.addVertex(newX, newY);
+                    
+                    this.edges.push({
+                        startX: start.x, startY: start.y,
+                        controlX: controls[0].x, controlY: controls[0].y,
+                        endX: newX, endY: newY
+                    });
+                    this.edges.push({
+                        startX: newX, startY: newY,
+                        controlX: controls[1].x, controlY: controls[1].y,
+                        endX: end.x, endY: end.y
+                    });
+                    
+                    this.vertices[this.startVertex].connections++;
+                    this.vertices[endVertex].connections++;
+                    this.vertices[newVertexId].connections += 2;
+                    
+                    this.drawVertex(start.x, start.y, this.startVertex);
+                    this.drawVertex(end.x, end.y, endVertex);
+                    
+                    this.currentPlayer = 3 - this.currentPlayer;
+                    this.updateStatus();
+                }
+                
+                this.drawing = false;
+                this.startVertex = null;
+                this.controlPoint = null;
+                this.redraw();
+            }
+
+            redraw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                for (const edge of this.edges) {
+                    this.drawCurve(edge.startX, edge.startY, edge.controlX, edge.controlY, edge.endX, edge.endY);
+                }
+                
+                for (let i = 0; i < this.vertices.length; i++) {
+                    const v = this.vertices[i];
+                    this.drawVertex(v.x, v.y, i);
+                }
+            }
+
+            updateStatus() {
+                this.statusLabel.textContent = `Oyuncu ${this.currentPlayer}'in sırası`;
+                
+                const activeVertices = this.vertices.filter(v => v.connections < this.MAX_CONNECTIONS).length;
+                if (activeVertices < 2 && this.vertices.length > 0) {
+                    setTimeout(() => {
+                        alert(`Oyun Bitti!\nOyuncu ${3 - this.currentPlayer} kazandı!`);
+                    }, 100);
+                }
+            }
+
+            showEuler() {
+                const V = this.vertices.length;
+                const E = this.edges.length;
+                const F = this.calculateFaces();
+                const euler = V - E + F;
+                
+                const modal = document.getElementById('modal');
+                document.getElementById('modalTitle').textContent = 'Euler Karakteristiği';
+                document.getElementById('modalText').innerHTML = `
+                    <strong>Vertices (V):</strong> ${V}<br>
+                    <strong>Edges (E):</strong> ${E}<br>
+                    <strong>Faces (F):</strong> ${F}<br>
+                    <strong>V - E + F = ${euler}</strong>
+                `;
+                document.getElementById('modalInput').style.display = 'none';
+                modal.style.display = 'flex';
+                
+                setTimeout(() => {
+                    document.getElementById('modalInput').style.display = 'block';
+                }, 100);
+            }
+
+            calculateFaces() {
+                if (this.edges.length === 0) return 1;
+                return Math.max(1, this.edges.length - this.vertices.length + 2);
+            }
+        }
+
+        const game = new SproutsGame();
+    </script>
+</body>
+</html>

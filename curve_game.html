@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eğri Özellikleri Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .main-tabs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .main-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .main-tab {
+            flex: 1;
+            padding: 20px 30px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: normal;
+            color: #333;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .main-tab:hover {
+            background: #e0e0e0;
+        }
+
+        .main-tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .main-tab-content {
+            display: none;
+        }
+
+        .main-tab-content.active {
+            display: block;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .info-content {
+            padding: 40px;
+            line-height: 1.8;
+        }
+
+        .info-content h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .info-content h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .info-content p {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .info-content ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .info-content li {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .home-btn {
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: normal;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 auto;
+            display: inline-block;
+        }
+
+        .home-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .tutorial {
+            padding: 40px;
+        }
+
+        .tutorial h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab:hover {
+            background: #ececec;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .tab-content p {
+            color: #555;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .start-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .game {
+            display: none;
+            padding: 40px;
+        }
+
+        .game.active {
+            display: block;
+        }
+
+        .game h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            min-height: 400px;
+            align-items: center;
+            background: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .curve-image {
+            max-width: 400px;
+            max-height: 400px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .properties {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 25px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-container:hover {
+            background: #e8e8e8;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .check-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            font-size: 18px;
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .modal-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            background: #764ba2;
+        }
+
+        .result-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-tab {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+
+            body {
+                padding-top: 80px;
+            }
+
+            .curve-image {
+                max-width: 300px;
+                max-height: 300px;
+            }
+
+            .properties {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-tabs-container">
+        <div class="main-tabs">
+            <button class="main-tab active" onclick="switchMainTab('game')">Oyun</button>
+            <button class="main-tab" onclick="switchMainTab('info')">Topolojik Özellikler</button>
+            <button class="main-tab" onclick="switchMainTab('home')">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="game-main-tab" class="main-tab-content active">
+            <!-- Tutorial Section -->
+            <div class="tutorial" id="tutorial">
+                <h1>📚 Eğri Özellikleri Eğitimi</h1>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="game.showTab(0)">Basit Eğri</button>
+                    <button class="tab" onclick="game.showTab(1)">Kapalı Eğri</button>
+                    <button class="tab" onclick="game.showTab(2)">Bağlantılı Eğri</button>
+                </div>
+
+                <div class="tab-content active" id="tab0">
+                    <h2>Basit Eğri</h2>
+                    <p>Bir eğri, kendisini kesmiyorsa 'basit eğri' olarak adlandırılır.
+
+Özellikler:
+• Eğrinin hiçbir noktada kendisiyle kesişimi yoktur
+• Her nokta sadece bir kez kullanılır
+• Kendi üzerinden geçmez
+
+Örnek:
+- Düz bir çizgi basit bir eğridir
+- Bir daire basit bir eğridir
+- Bir spiral basit bir eğridir</p>
+                </div>
+
+                <div class="tab-content" id="tab1">
+                    <h2>Kapalı Eğri</h2>
+                    <p>Bir eğri, başlangıç ve bitiş noktaları aynı ise 'kapalı eğri' olarak adlandırılır.
+
+Özellikler:
+• Başlangıç noktası = Bitiş noktası
+• Eğri bir döngü oluşturur
+• Uç nokta yoktur
+
+Örnek:
+- Bir daire kapalı bir eğridir
+- Bir kare kapalı bir eğridir
+- Bir üçgen kapalı bir eğridir</p>
+                </div>
+
+                <div class="tab-content" id="tab2">
+                    <h2>Bağlantılı Eğri</h2>
+                    <p>Bir eğri, tek parçadan oluşuyorsa 'bağlantılı eğri' olarak adlandırılır.
+
+Özellikler:
+• Eğri tek parçadır
+• Kopukluk yoktur
+• Her noktadan diğer noktalara kesintisiz ulaşılabilir
+
+Örnek:
+- Düz bir çizgi bağlantılı bir eğridir
+- Bir daire bağlantılı bir eğridir
+- Bir sinüs dalgası bağlantılı bir eğridir</p>
+                </div>
+
+                <button class="start-btn" onclick="game.startGame()">🎮 Oyuna Başla</button>
+            </div>
+
+            <!-- Game Section -->
+            <div class="game" id="game">
+                <h1>🎯 Eğri Özellikleri Oyunu</h1>
+                
+                <div class="score" id="score">Skor: 0</div>
+
+                <div class="image-container">
+                    <img id="curveImage" class="curve-image" alt="Eğri">
+                </div>
+
+                <div class="properties">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="checkOpen">
+                        <label for="checkOpen">Kapalı</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="checkConnected">
+                        <label for="checkConnected">Bağlantılı</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="checkSimple">
+                        <label for="checkSimple">Basit</label>
+                    </div>
+                </div>
+
+                <button class="check-btn" onclick="game.checkAnswers()">✓ Kontrol Et</button>
+            </div>
+        </div>
+
+        <div id="info-main-tab" class="main-tab-content">
+            <div class="info-content">
+                <h2>Eğri Teorisi ve Topolojik Özellikler</h2>
+                <p>
+                    Eğri teorisi, topolojinin temel kavramlarından biridir ve şekillerin sürekli 
+                    dönüşümler altındaki özelliklerini inceler. Bu oyunda öğrendiğiniz kavramlar, 
+                    matematik ve bilgisayar bilimlerinde önemli uygulamalara sahiptir.
+                </p>
+
+                <h3>Basit Eğri (Simple Curve)</h3>
+                <p>
+                    Bir eğri, hiçbir noktada kendisiyle kesişmiyorsa "basit eğri" olarak tanımlanır. 
+                    Matematiksel olarak, bir eğri f:[0,1]→ℝ² fonksiyonu ile tanımlanır ve eğer 
+                    f bire-bir ise (yani her nokta sadece bir kez ziyaret edilirse), eğri basittir.
+                </p>
+                <p>
+                    <strong>Jordan Eğri Teoremi:</strong> Kapalı ve basit bir eğri, düzlemi tam olarak 
+                    iki bölgeye ayırır: bir iç bölge ve bir dış bölge. Bu teorem sezgisel olarak açık 
+                    görünse de, kanıtı oldukça karmaşıktır ve topolojinin temel sonuçlarından biridir.
+                </p>
+
+                <h3>Kapalı Eğri (Closed Curve)</h3>
+                <p>
+                    Bir eğrinin başlangıç ve bitiş noktaları çakışıyorsa, bu eğri "kapalı eğri" veya 
+                    "loop" olarak adlandırılır. Matematiksel olarak f(0) = f(1) koşulunu sağlar.
+                </p>
+                <p>
+                    <strong>Homotopi:</strong> İki kapalı eğri, biri diğerine sürekli olarak 
+                    deforme edilebiliyorsa "homotopik"tir. Örneğin, bir düzlemde tüm basit kapalı 
+                    eğriler birbirine homotopiktir, çünkü hepsi bir noktaya büzülebilir.
+                </p>
+
+                <h3>Bağlantılı Eğri (Connected Curve)</h3>
+                <p>
+                    Bir eğri tek bir kesintisiz parçadan oluşuyorsa "bağlantılı"dır. Bağlantılılık, 
+                    topolojide temel bir kavramdır ve bir uzayın "tek parça" olup olmadığını belirtir.
+                </p>
+                <p>
+                    <strong>Yol Bağlantılılığı:</strong> Bir uzay, herhangi iki noktası arasında 
+                    sürekli bir yol çizilebiliyorsa "yol bağlantılı"dır. Eğriler için, bağlantılılık 
+                    ve yol bağlantılılığı eşdeğer kavramlardır.
+                </p>
+
+                <h3>Pratik Uygulamalar</h3>
+                <ul>
+                    <li><strong>Bilgisayar Grafikleri:</strong> Eğri özellikleri, vektör grafiklerinde 
+                    şekil tanıma ve çizim algoritmalarında kullanılır</li>
+                    <li><strong>Coğrafi Bilgi Sistemleri (CBS):</strong> Harita sınırlarının analizi 
+                    ve bölge tanımlamaları</li>
+                    <li><strong>Robot Yol Planlama:</strong> Bir robotun engellerden kaçınarak hedefe 
+                    ulaşması için yol bağlantılılığı kritiktir</li>
+                    <li><strong>DNA Molekül Yapısı:</strong> DNA'nın süper sarmallarının (supercoiling) 
+                    topolojik özellikleri, genetik işlevlerde önemli rol oynar</li>
+                </ul>
+
+                <h3>İleri Düzey Kavramlar</h3>
+                <p>
+                    <strong>Düğüm Teorisi:</strong> Üç boyutlu uzayda kapalı eğrilerin (düğümler) 
+                    incelenmesi, topolojinin zengin bir alt dalıdır. İki düğümün birbirine eşdeğer 
+                    olup olmadığını belirlemek zor bir problemdir.
+                </p>
+                <p>
+                    <strong>Euler Karakteristiği:</strong> Kapalı bir eğri ile sınırlanan bir bölgenin 
+                    Euler karakteristiği χ = V - E + F formülü ile hesaplanır (V: köşe, E: kenar, 
+                    F: yüzey sayısı).
+                </p>
+            </div>
+        </div>
+
+        <div id="home-main-tab" class="main-tab-content">
+            <div class="info-content" style="text-align: center; padding: 100px 20px;">
+                <h2>Ana Sayfaya Yönlendirme</h2>
+                <p style="margin-bottom: 30px;">Ana sayfaya dönmek için aşağıdaki butona tıklayın:</p>
+                <button class="home-btn" onclick="window.location.href='index.html'">
+                    Ana Sayfaya Git
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="result-icon" id="resultIcon"></div>
+            <h2 id="modalTitle"></h2>
+            <p id="modalText"></p>
+            <button class="modal-btn" onclick="game.closeModal()">Tamam</button>
+        </div>
+    </div>
+
+    <script>
+        function switchMainTab(tabName) {
+            document.querySelectorAll('.main-tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.main-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            if (tabName === 'game') {
+                document.getElementById('game-main-tab').classList.add('active');
+                document.querySelectorAll('.main-tab')[0].classList.add('active');
+            } else if (tabName === 'info') {
+                document.getElementById('info-main-tab').classList.add('active');
+                document.querySelectorAll('.main-tab')[1].classList.add('active');
+            } else if (tabName === 'home') {
+                document.getElementById('home-main-tab').classList.add('active');
+                document.querySelectorAll('.main-tab')[2].classList.add('active');
+            }
+        }
+
+        class CurveGame {
+            constructor() {
+                this.score = 0;
+                this.currentCurveIndex = 0;
+                this.availableCurves = [];
+                
+                this.curvesData = [
+                    {
+                        image: "curves/curve1.png",
+                        properties: { open: true, connected: true, simple: true }
+                    },
+                    {
+                        image: "curves/curve2.png",
+                        properties: { open: true, connected: true, simple: false }
+                    },
+                    {
+                        image: "curves/curve3.png",
+                        properties: { open: true, connected: true, simple: false }
+                    },
+                    {
+                        image: "curves/curve4.png",
+                        properties: { open: false, connected: false, simple: true }
+                    },
+                    {
+                        image: "curves/curve5.png",
+                        properties: { open: true, connected: true, simple: true }
+                    },
+                    {
+                        image: "curves/curve6.png",
+                        properties: { open: true, connected: true, simple: true }
+                    },
+                    {
+                        image: "curves/curve7.png",
+                        properties: { open: true, connected: true, simple: true }
+                    },
+                    {
+                        image: "curves/curve8.png",
+                        properties: { open: true, connected: true, simple: false }
+                    },
+                    {
+                        image: "curves/curve9.png",
+                        properties: { open: false, connected: false, simple: true }
+                    },
+                    {
+                        image: "curves/curve10.png",
+                        properties: { open: true, connected: true, simple: false }
+                    },
+                    {
+                        image: "curves/curve11.png",
+                        properties: { open: false, connected: false, simple: false }
+                    },
+                    {
+                        image: "curves/curve12.png",
+                        properties: { open: true, connected: true, simple: true }
+                    },
+                    {
+                        image: "curves/curve13.png",
+                        properties: { open: false, connected: true, simple: false }
+                    }
+                ];
+                
+                this.availableCurves = [...Array(this.curvesData.length).keys()];
+                this.shuffleArray(this.availableCurves);
+            }
+
+            showTab(index) {
+                document.querySelectorAll('.tab').forEach((tab, i) => {
+                    tab.classList.toggle('active', i === index);
+                });
+                document.querySelectorAll('.tab-content').forEach((content, i) => {
+                    content.classList.toggle('active', i === index);
+                });
+            }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            startGame() {
+                document.getElementById('tutorial').style.display = 'none';
+                document.getElementById('game').classList.add('active');
+                this.showNextCurve();
+            }
+
+            showNextCurve() {
+                if (this.availableCurves.length === 0) {
+                    this.endGame();
+                    return;
+                }
+
+                this.currentCurveIndex = this.availableCurves.pop();
+                const curve = this.curvesData[this.currentCurveIndex];
+                
+                const imgElement = document.getElementById('curveImage');
+                
+                imgElement.onerror = () => {
+                    alert(`⚠️ Görsel yüklenemedi: ${curve.image}\n\nLütfen curves dizininde ${curve.image.split('/')[1]} dosyasının olduğundan emin olun.`);
+                    console.error(`Görsel yüklenemedi: ${curve.image}`);
+                };
+                
+                imgElement.onload = () => {
+                    console.log(`✓ Görsel yüklendi: ${curve.image}`);
+                };
+                
+                imgElement.src = curve.image;
+                
+                document.getElementById('checkOpen').checked = false;
+                document.getElementById('checkConnected').checked = false;
+                document.getElementById('checkSimple').checked = false;
+            }
+
+            checkAnswers() {
+                if (this.currentCurveIndex < 0 || this.currentCurveIndex >= this.curvesData.length) {
+                    return;
+                }
+
+                const curve = this.curvesData[this.currentCurveIndex];
+                const userAnswers = {
+                    open: document.getElementById('checkOpen').checked,
+                    connected: document.getElementById('checkConnected').checked,
+                    simple: document.getElementById('checkSimple').checked
+                };
+
+                let correctCount = 0;
+                let results = '';
+
+                const properties = {
+                    'Kapalı': 'open',
+                    'Bağlantılı': 'connected',
+                    'Basit': 'simple'
+                };
+
+                for (const [label, key] of Object.entries(properties)) {
+                    const isCorrect = userAnswers[key] === curve.properties[key];
+                    if (isCorrect) {
+                        correctCount++;
+                        this.score++;
+                    } else {
+                        this.score--;
+                    }
+                    results += `${label}: ${isCorrect ? '✓' : '✗'}\n`;
+                }
+
+                document.getElementById('score').textContent = `Skor: ${this.score}`;
+
+                this.showModal(
+                    correctCount === 3 ? '🎉' : '📊',
+                    'Sonuç',
+                    `Doğru: ${correctCount}/3\n${results}`
+                );
+            }
+
+            showModal(icon, title, text) {
+                document.getElementById('resultIcon').textContent = icon;
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalText').textContent = text;
+                document.getElementById('modal').classList.add('active');
+            }
+
+            closeModal() {
+                document.getElementById('modal').classList.remove('active');
+                this.showNextCurve();
+            }
+
+            endGame() {
+                this.showModal(
+                    '🏆',
+                    'Oyun Bitti!',
+                    `Final Skorunuz: ${this.score}\n\nTebrikler! Tüm eğrileri tamamladınız.`
+                );
+                
+                setTimeout(() => {
+                    this.score = 0;
+                    this.availableCurves = [...Array(this.curvesData.length).keys()];
+                    this.shuffleArray(this.availableCurves);
+                    document.getElementById('score').textContent = 'Skor: 0';
+                    document.getElementById('modal').classList.remove('active');
+                    document.getElementById('game').classList.remove('active');
+                    document.getElementById('tutorial').style.display = 'block';
+                }, 3000);
+            }
+        }
+
+        const game = new CurveGame();
+    </script>
+</body>
+</html>

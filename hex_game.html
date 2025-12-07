@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .tabs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px 30px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: normal;
+            color: #333;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            min-height: 600px;
+            margin-top: 20px;
+        }
+
+        .info-content {
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        .info-content h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .info-content h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .info-content p {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .info-content ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .info-content li {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        #game {
+            text-align: center;
+        }
+
+        .game-controls {
+            margin: 20px 0;
+        }
+
+        .game-btn {
+            margin: 5px;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .game-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        #status {
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        #hexBoard {
+            border: 2px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            display: block;
+        }
+
+        .home-btn {
+            padding: 20px 60px;
+            font-size: 18px;
+            font-weight: normal;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 auto;
+            display: inline-block;
+        }
+
+        .home-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .tab {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+
+            body {
+                padding-top: 80px;
+            }
+
+            #hexBoard {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('game')">Oyun</button>
+            <button class="tab" onclick="switchTab('info')">Topolojik Özellikler</button>
+            <button class="tab" onclick="switchTab('home')">Ana Sayfa</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="game-tab" class="tab-content active">
+            <div id="game">
+                <h2 style="color: #667eea; margin-bottom: 20px;">Hex Oyunu</h2>
+                <div class="game-controls">
+                    <button class="game-btn" onclick="toggleStartingPlayer()">
+                        Başlangıç Oyuncusu: <span id="startPlayer">Beyaz</span>
+                    </button>
+                    <button class="game-btn" onclick="resetGame()">Yeni Oyun</button>
+                </div>
+                <div id="status"></div>
+                <canvas id="hexBoard" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <div id="info-tab" class="tab-content">
+            <div class="info-content">
+                <h2>Hex Oyunu ve Topolojik Özellikleri</h2>
+                <p>
+                    Hex, 1942 yılında Danimarkalı matematikçi Piet Hein tarafından icat edilen, 
+                    2 kişilik soyut strateji oyunudur. Oyun daha sonra bağımsız olarak John Nash 
+                    tarafından da keşfedilmiştir ve derin topolojik temellere sahiptir.
+                </p>
+
+                <h3>Oyunun Kuralları</h3>
+                <ul>
+                    <li><strong>Beyaz oyuncu:</strong> Sol kenarı sağ kenara bağlamaya çalışır</li>
+                    <li><strong>Siyah oyuncu:</strong> Üst kenarı alt kenara bağlamaya çalışır</li>
+                    <li>Oyuncular sırayla boş noktalara taş koyarlar</li>
+                    <li>Taşlar komşu (kenar paylaşan) taşlarla bağlantı kurar</li>
+                    <li>Kendi kenarlarını birbirine bağlayan ilk oyuncu kazanır</li>
+                </ul>
+
+                <h3>Topolojik Özellikler</h3>
+                <p>
+                    <strong>Beraberlik İmkansızlığı:</strong> Hex oyununun en önemli topolojik özelliği, 
+                    oyunun asla berabere bitemeyeceğidir. Bu, Brouwer'in Sabit Nokta Teoremi ile yakından 
+                    ilişkilidir. İki oyuncunun hedefleri topolojik olarak birbirini "keser" - bir oyuncu 
+                    kazandığında, diğer oyuncunun yolunu mutlaka bloke etmiş olur.
+                </p>
+
+                <h3>Matematiksel Önemi</h3>
+                <p>
+                    <strong>Jordan Eğri Teoremi:</strong> Hex oyununun kazanma koşulu, düzlemde bir eğrinin 
+                    düzlemi iki ayrı bölgeye ayırması prensibine dayanır. Beyaz oyuncunun sol-sağ bağlantısı, 
+                    siyah oyuncunun üst-alt bağlantısını "keser".
+                </p>
+                <p>
+                    <strong>Dualite:</strong> Hex tahtası döndürüldüğünde, beyaz ve siyah oyuncuların rolleri 
+                    değişir. Bu simetri, oyunun topolojik yapısının temel bir özelliğidir.
+                </p>
+
+                <h3>Strateji ve Topoloji</h3>
+                <p>
+                    John Nash, Hex oyununun ilk oyuncunun her zaman kazanabileceğini matematiksel olarak 
+                    kanıtlamıştır (strateji çalma argümanı). Ancak, optimal strateji büyük tahtalar için 
+                    hala bilinmemektedir. Bu, oyunu hem matematiksel hem de pratik açıdan ilginç kılar.
+                </p>
+
+                <h3>Bağlantı ve Yol Bulma</h3>
+                <p>
+                    Oyunda kazanma durumu, graf teorisinde "yol bulma" problemine karşılık gelir. 
+                    Oyuncular, kendi renklerindeki taşlar arasında kesintisiz bir yol oluşturmaya çalışırlar. 
+                    Bu, ağ topolojisi ve bağlantılılık kavramlarının pratik bir uygulamasıdır.
+                </p>
+            </div>
+        </div>
+
+        <div id="home-tab" class="tab-content">
+            <div class="info-content" style="text-align: center; padding: 100px 20px;">
+                <h2>Ana Sayfaya Yönlendirme</h2>
+                <p style="margin-bottom: 30px;">Ana sayfaya dönmek için aşağıdaki butona tıklayın:</p>
+                <button class="home-btn" onclick="window.location.href='index.html'">
+                    Ana Sayfaya Git
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            if (tabName === 'game') {
+                document.getElementById('game-tab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+            } else if (tabName === 'info') {
+                document.getElementById('info-tab').classList.add('active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            } else if (tabName === 'home') {
+                document.getElementById('home-tab').classList.add('active');
+                document.querySelectorAll('.tab')[2].classList.add('active');
+            }
+        }
+
+        const canvas = document.getElementById('hexBoard');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        const startPlayerSpan = document.getElementById('startPlayer');
+        const size = 6;
+        const spacing = 60;
+        const offset = 30;
+        
+        let board = Array(size).fill().map(() => Array(size).fill(0));
+        let currentPlayer = 1;
+        let gameOver = false;
+        let startingPlayer = 1;
+
+        function toggleStartingPlayer() {
+            startingPlayer = startingPlayer === 1 ? 2 : 1;
+            startPlayerSpan.textContent = startingPlayer === 1 ? 'Beyaz' : 'Siyah';
+        }
+
+        function resetGame() {
+            board = Array(size).fill().map(() => Array(size).fill(0));
+            gameOver = false;
+            currentPlayer = startingPlayer;
+            status.textContent = `Sıra: ${currentPlayer === 1 ? 'Beyaz' : 'Siyah'}`;
+            status.style.color = 'black';
+            drawBoard();
+        }
+
+        function hasPath(player) {
+            const visited = Array(size).fill().map(() => Array(size).fill(false));
+            
+            function dfs(row, col) {
+                if (player === 1) {
+                    if (col === size - 1) return true;
+                } else {
+                    if (row === size - 1) return true;
+                }
+                
+                visited[row][col] = true;
+                
+                const directions = [
+                    [-1,-1], [-1,0], [0,-1], [0,1], [1,0], [1,1]
+                ];
+                
+                for (const [dr, dc] of directions) {
+                    const newRow = row + dr;
+                    const newCol = col + dc;
+                    
+                    if (newRow >= 0 && newRow < size && 
+                        newCol >= 0 && newCol < size && 
+                        board[newRow][newCol] === player && 
+                        !visited[newRow][newCol]) {
+                        if (dfs(newRow, newCol)) return true;
+                    }
+                }
+                
+                return false;
+            }
+            
+            if (player === 1) {
+                for (let i = 0; i < size; i++) {
+                    if (board[i][0] === player && !visited[i][0]) {
+                        if (dfs(i, 0)) return true;
+                    }
+                }
+            } else {
+                for (let j = 0; j < size; j++) {
+                    if (board[0][j] === player && !visited[0][j]) {
+                        if (dfs(0, j)) return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 20, canvas.height);
+            ctx.fillRect(canvas.width - 20, 0, 20, canvas.height);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, 20);
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+            
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            
+            for(let i = 0; i < size; i++) {
+                for(let j = 0; j < size; j++) {
+                    if(j < size - 1) {
+                        ctx.beginPath();
+                        ctx.moveTo(j * spacing + offset, i * spacing + offset);
+                        ctx.lineTo((j + 1) * spacing + offset, i * spacing + offset);
+                        ctx.stroke();
+                    }
+                    if(i < size - 1) {
+                        ctx.beginPath();
+                        ctx.moveTo(j * spacing + offset, i * spacing + offset);
+                        ctx.lineTo(j * spacing + offset, (i + 1) * spacing + offset);
+                        ctx.stroke();
+                    }
+                    if(i < size - 1 && j < size - 1) {
+                        ctx.beginPath();
+                        ctx.moveTo(j * spacing + offset, i * spacing + offset);
+                        ctx.lineTo((j + 1) * spacing + offset, (i + 1) * spacing + offset);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            for(let i = 0; i < size; i++) {
+                for(let j = 0; j < size; j++) {
+                    ctx.beginPath();
+                    if(board[i][j] === 0) {
+                        ctx.arc(j * spacing + offset, i * spacing + offset, 4, 0, Math.PI * 2);
+                        ctx.fillStyle = 'black';
+                    } else {
+                        ctx.arc(j * spacing + offset, i * spacing + offset, 15, 0, Math.PI * 2);
+                        if(board[i][j] === 1) {
+                            ctx.fillStyle = 'white';
+                            ctx.strokeStyle = 'black';
+                            ctx.stroke();
+                        } else {
+                            ctx.fillStyle = 'black';
+                        }
+                    }
+                    ctx.fill();
+                }
+            }
+        }
+
+        function getMousePosition(event) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+        }
+
+        function findNearestIntersection(x, y) {
+            const gridX = Math.round((x - offset) / spacing);
+            const gridY = Math.round((y - offset) / spacing);
+            if(gridX >= 0 && gridX < size && gridY >= 0 && gridY < size) {
+                return {x: gridX, y: gridY};
+            }
+            return null;
+        }
+
+        function makeMove(x, y) {
+            if(gameOver || board[y][x] !== 0) return;
+            
+            board[y][x] = currentPlayer;
+            
+            if(hasPath(currentPlayer)) {
+                gameOver = true;
+                status.textContent = `${currentPlayer === 1 ? 'Beyaz' : 'Siyah'} Oyuncu Kazandı!`;
+                status.style.color = currentPlayer === 1 ? 'blue' : 'red';
+            } else {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                status.textContent = `Sıra: ${currentPlayer === 1 ? 'Beyaz' : 'Siyah'}`;
+                status.style.color = 'black';
+            }
+            
+            drawBoard();
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const pos = getMousePosition(event);
+            const intersection = findNearestIntersection(pos.x, pos.y);
+            if(intersection) {
+                makeMove(intersection.x, intersection.y);
+            }
+        });
+
+        status.textContent = 'Sıra: Beyaz';
+        drawBoard();
+    </script>
+</body>
+</html>
